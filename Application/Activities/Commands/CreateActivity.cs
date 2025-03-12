@@ -1,7 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Application.Activities.DTOs;
+using Application.Core;
+using AutoMapper;
 using Domain;
 using MediatR;
 using Persistence;
@@ -11,23 +10,31 @@ namespace Application.Activities.Commands
     public class CreateActivity
     {
         // The [Command] DO NOT [return] anything. That's why in the [IRequest] we don't have anything
-        public class Command: IRequest<string>
+        public class Command: IRequest<Result<string>>
         {
             // Here i added [Activity] because i want to Add [a new Activity] . 
             //And it will be [Available] in the [Handler]
-            public required Activity Activity { get; set; }
+            public required CreateActivityDto ActivityDto { get; set; }
         }
 
         // We don't have [anything] after the [Command] Because we [Don't] [return] anything.
-        public class Handler(AppDbContext context) : IRequestHandler<Command, string>
+        public class Handler(AppDbContext context, IMapper mapper) : IRequestHandler<Command, Result<string>>
         {
-            public async Task<string> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<Result<string>> Handle(Command request, CancellationToken cancellationToken)
             {
-                context.Activities.Add(request.Activity);
+                var activity = mapper.Map<Activity>(request.ActivityDto);
 
-                await context.SaveChangesAsync(cancellationToken);
+                context.Activities.Add(activity);
 
-                return request.Activity.Id;
+                var result = await context.SaveChangesAsync(cancellationToken) > 0;
+
+                // Here I'm [Checking] for any [Errors]
+                if (!result)
+                {
+                    return Result<string>.Failure("Failed To Create The Activity", 400);
+                }
+
+                return Result<string>.Success(activity.Id);
             }
         }
     }

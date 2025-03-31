@@ -1,9 +1,5 @@
 import { z } from 'zod';
-
-export const requiredString = (fieldName: string) =>
-    z.string({ required_error: `${fieldName} is required` })
-        .min(1, { message: `${fieldName} is required` })
-
+import { requiredString } from '../util/util';
 
 // In here I'm making sure that the [properties] for an [Activity] for [Example] are [required] And VVV
 // Making Sure that what the [user] has writing in the [Input Fields] in the [Forms] are [correct].

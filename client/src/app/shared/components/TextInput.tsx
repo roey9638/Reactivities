@@ -12,9 +12,9 @@ export default function TextInput<T extends FieldValues>(props: Props<T>) {
 
     return (
         <TextField
-            {...props}
-            {...field}
-            value={field.value || ''}
+            {...props} // Pass all props (e.g., placeholder, label, etc.)
+            {...field} // Connect field properties (value, onChange, etc.)
+            value={field.value || ''} // Ensures it doesn't break if `undefined`
             fullWidth
             variant="outlined"
             error={!!fieldState.error} // That's for making the [Input Border] [Red] if we didn't put anything.

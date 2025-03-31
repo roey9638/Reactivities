@@ -13,7 +13,8 @@ const sleep = (delay: number) => {
 const agent = axios.create({
     // This [import.meta.env.VITE_API_URL] will just take the [URL]
     // That is in the [.env.development] [File] in the [client]
-    baseURL: import.meta.env.VITE_API_URL
+    baseURL: import.meta.env.VITE_API_URL,
+    withCredentials: true
 });
 
 

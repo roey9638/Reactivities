@@ -1,14 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import agent from "../api/agent";
 import { useLocation } from "react-router";
+import { useAccount } from "./useAccount";
 
 export const useActivities = (id?: string) => {
 
     const queryClient = useQueryClient();
+    const {currentUser} = useAccount();
     const location = useLocation();
 
     // When we [Fetching] [Data] we [use] [useQuery]!!!
-    const { data: activities, isPending } = useQuery({
+    const { data: activities, isLoading } = useQuery({
         // The [queryKey] is used internally for refetching, caching, VVVV
         // And sharing your queries throughout your application.
         // Also Its job is to give the incoming data from the backend  VVVV
@@ -18,7 +20,7 @@ export const useActivities = (id?: string) => {
             const response = await agent.get<Activity[]>('/activities');
             return response.data;
         },
-        enabled: !id && location.pathname === '/activities'
+        enabled: !id && location.pathname === '/activities' && !!currentUser
     });
 
 
@@ -32,7 +34,7 @@ export const useActivities = (id?: string) => {
         // What the [enabled] does is [allowing] this [Query / Function] to [RUN] 
         // [Only] if we [Have] the [id].
         // The [double (!!)] will [cast] the [id] into a [boolean].
-        enabled: !!id
+        enabled: !!id && !!currentUser
     })
 
 
@@ -84,7 +86,7 @@ export const useActivities = (id?: string) => {
 
     return {
         activities,
-        isPending,
+        isLoading,
         updateActivity,
         createActivity,
         deleteActivity,

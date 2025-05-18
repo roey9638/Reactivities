@@ -1,5 +1,5 @@
 import axios from "axios";
-import { store } from "../store/store";
+import { store } from "../stores/store";
 import { toast } from "react-toastify";
 import { router } from "../../app/router/Routes";
 
@@ -19,7 +19,7 @@ const agent = axios.create({
 
 
 agent.interceptors.request.use(config => {
-    store.uiStore.isBusy();
+    store.uiStore.isBusy(); // will [set] the [isLoading] [state] in the [store] to [true]
     return config;
 })
 
@@ -27,12 +27,12 @@ agent.interceptors.request.use(config => {
 agent.interceptors.response.use(
     async response => {
         await sleep(1000);
-        store.uiStore.isIdle();
+        store.uiStore.isIdle(); // will [set] the [isLoading] [state] in the [store] to [false]
         return response;
     },
     async error => {
         await sleep(1000);
-        store.uiStore.isIdle();
+        store.uiStore.isIdle(); // will [set] the [isLoading] [state] in the [store] to [false]
 
         const { status, data } = error.response;
         switch (status) {

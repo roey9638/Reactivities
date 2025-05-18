@@ -7,9 +7,16 @@ import ActivityFilters from "./ActivityFilters";
 
 export default function ActivityDasboard() {
 
-    const { activities, isPending } = useActivities();
+    // The [isPending] needs to be [Changed] to [isLoading]!!!
+    const { activities, isLoading } = useActivities();
 
-    if (!activities || isPending) return <Typography>Loading...</Typography>
+    if (!activities || isLoading) return <Typography>Loading...</Typography>
+
+    // const { activities, isLoading } = useActivities();
+
+    // if (isLoading) return <Typography>Loading...</Typography>
+
+    // if (!activities) return <Typography>No activities found</Typography>
 
     return (
         <Grid2 container spacing={3}>

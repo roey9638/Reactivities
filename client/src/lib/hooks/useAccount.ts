@@ -15,7 +15,7 @@ export const useAccount = () => {
     // After the [User] [Logs in] we want to [fetch] his [data]. So that's what the [onSuccess] doing.
     // It's [invalidating] the [user] by using the [queryKey] because the [data] is [cached] in there VVV
     // And then the becuase the [queryKey: ['user']] is inside a [useQuery] [Function]. VVV
-    // The [Function] wi [execute] [automatically] and [fetch] his [data] [again].
+    // The [Function] will [execute] [automatically] and [fetch] his [data] [again].
     const loginUser = useMutation({
         mutationFn: async (creds: LoginSchema) => {
             await agent.post('/login?useCookies=true', creds);

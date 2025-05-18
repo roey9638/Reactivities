@@ -22,7 +22,7 @@ public class ExceptionMiddleware(ILogger<ExceptionMiddleware> logger, IHostEnvir
             await HandleException(context, ex);
         }
     }
-
+    
     private async Task HandleException(HttpContext context, Exception ex)
     {
         logger.LogError(ex, ex.Message);

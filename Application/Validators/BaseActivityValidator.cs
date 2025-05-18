@@ -4,6 +4,9 @@ using FluentValidation;
 namespace Application.Validators
 {
     // This [AbstractValidator] is to [Validate] [everything] inside in this case the [CreateActivity.Command]
+    // The [<T>] in the [BaseActivityValidator] is what we want to [Validate]. For Example the [CreateActivity.Command].
+    // The [<TDto>] in the [BaseActivityValidator] means that the type [TDto] must be a [subclass] of, or the same as, [BaseActivityDto] VVV 
+    // In other words, [TDto] [must] [inherit] from [BaseActivityDto].
     public class BaseActivityValidator<T, TDto> : AbstractValidator<T> where TDto : BaseActivityDto
     {
         public BaseActivityValidator(Func<T, TDto> selector)

@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { StoreContext } from "../store/store";
+import { StoreContext } from "../stores/store";
 
 export default function useStore() {
     return useContext(StoreContext);

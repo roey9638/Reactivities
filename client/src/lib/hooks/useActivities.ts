@@ -20,6 +20,10 @@ export const useActivities = (id?: string) => {
             const response = await agent.get<Activity[]>('/activities');
             return response.data;
         },
+        // The [enabled] allows this [useQuery] to [Execute] [Only if] VVVV
+        // 1) We [Don't] have an [!id] [Passed] into the [useActivities()] [hook] in other [Components] that [use] that [hook].
+        // 2) The [location] that the [user] is in is [location.pathname === '/activities'].
+        // 3) If we [Don't have] the [currentUser] as in [!!currentUser]. Then Don't [Excute] this [useQuery].
         enabled: !id && location.pathname === '/activities' && !!currentUser
     });
 
@@ -32,7 +36,8 @@ export const useActivities = (id?: string) => {
             return response.data;
         },
         // What the [enabled] does is [allowing] this [Query / Function] to [RUN] 
-        // [Only] if we [Have] the [id].
+        // 1) [Only] if we [Have] the [id].
+        // 2) If we [Don't have] the [currentUser] as in [!!currentUser]. Then Don't [Excute] this [useQuery].
         // The [double (!!)] will [cast] the [id] into a [boolean].
         enabled: !!id && !!currentUser
     })

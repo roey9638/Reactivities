@@ -10,7 +10,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { RouterProvider } from 'react-router';
 import { router } from './app/router/Routes';
-import { store, StoreContext } from './lib/store/store';
+import { store, StoreContext } from './lib/stores/store';
 import { ToastContainer } from 'react-toastify';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFnsV3';
@@ -20,11 +20,11 @@ const queryClient = new QueryClient();
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <StoreContext.Provider value={store}>
-        <QueryClientProvider client={queryClient}>
+      <StoreContext.Provider value={store}> {/* I Did this so that are [Components] would have [Access] to the [StoreContex] */}
+        <QueryClientProvider client={queryClient}> {/*This let's all of the [Components] to have [React Query] */}
           <ReactQueryDevtools />
           <ToastContainer position='bottom-right' hideProgressBar theme='colored' />
-          <RouterProvider router={router} />
+          <RouterProvider router={router} /> {/* Here it used to be [<App/>]. Now i use [Routes] and the [<App/>] is in there */}
         </QueryClientProvider>
       </StoreContext.Provider>
     </LocalizationProvider>

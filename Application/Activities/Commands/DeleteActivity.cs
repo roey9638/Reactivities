@@ -24,6 +24,10 @@ namespace Application.Activities.Commands
 
                 context.Remove(activity);
 
+                
+                /* // The [Result] is a [bool]: [true] if rows were [affected] (i.e., save was successful), false otherwise.
+                // The [SaveChangesAsync] [returns] an [int], which is the [number] of [rows] [affected] in the [database] VVV
+                // This [checks] whether more than [0] [rows] were affected, indicating that [something] was actually [saved]. */
                 var result = await context.SaveChangesAsync(cancellationToken) > 0;
 
                 if (!result)

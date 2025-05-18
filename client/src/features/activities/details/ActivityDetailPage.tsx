@@ -12,6 +12,7 @@ export default function ActivityDetailPage() {
 
   // 1) To [Get] the [id] it [must] be [named] [exactly the same] as [named] it in the [Routes Component]
   // 2) In order to [Get] the [id] from the [URL] we [use] the [useParams()].
+  // This [id] will come [from] When i [Prees] the [(View) Button] in the [ActivityCard] Component.
   const { id } = useParams();
   const { activity, isLoadingActivity } = useActivities(id);
 

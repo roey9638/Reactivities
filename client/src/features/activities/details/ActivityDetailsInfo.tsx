@@ -24,7 +24,9 @@ export default function ActivityDetailsInfo({ activity }: Props) {
           <Typography>{activity.description}</Typography>
         </Grid2>
       </Grid2>
+
       <Divider />
+
       <Grid2 container alignItems="center" pl={2} py={1}>
         <Grid2 size={1}>
           <CalendarToday color="info" fontSize="large" />
@@ -33,6 +35,7 @@ export default function ActivityDetailsInfo({ activity }: Props) {
           <Typography>{formatDate(activity.date)}</Typography>
         </Grid2>
       </Grid2>
+      
       <Divider />
 
       <Grid2 container alignItems="center" pl={2} py={1}>

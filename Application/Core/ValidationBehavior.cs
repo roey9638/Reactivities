@@ -18,9 +18,9 @@ public class ValidationBehavior<TRequest, TResponse>(IValidator<TRequest>? valid
             // The [next()] is to [call] the next [middleware] in the pipeline.
             return await next();
         }
-        // In Here [await validator.ValidateAsync(request, cancellationToken)] 
+        // In Here [await validator.ValidateAsync(request, cancellationToken)]
         // I'm [validating] that [everything] is how it should be.
-        // The [request] is either will be the [Command] or the [Query] that we [validating]
+        // The [request] is either will be the [Command] or the [Query] that we [validating].
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
         // Here if we [valide] [something] and it's ["wrong"]. will just [throw] [ValidationException]

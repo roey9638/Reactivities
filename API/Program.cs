@@ -13,7 +13,7 @@ using Persistence;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers(opt => 
+builder.Services.AddControllers(opt =>
 {
     var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
     opt.Filters.Add(new AuthorizeFilter(policy));
@@ -26,9 +26,18 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 
 builder.Services.AddCors();
 
-builder.Services.AddMediatR(x => {
+builder.Services.AddMediatR(x =>
+{
 
     x.RegisterServicesFromAssemblyContaining<GetActivityList.Handler>();
+    /* In C#, when you write ValidationBehavior<,>, you're referring to a generic type definition that has two type parameters VVV  
+    // but you aren't specifying yet what those types are. It's open — meaning the type parameters are still to be filled in later. 
+    // For example, ValidationBehavior<TRequest, TResponse> might be defined like this. */
+
+    // HERE I have a [Middleware] that will [Validate] the [Params] that will be [Passed] to the [Diffrent] [Handling] [components] in my [Application].
+    // It will [Execute] [Because] the [BaseActivityValidator] VVV
+    // And [everything] that will be [Passed] into to it [For Example] [CreateActivity.Command] VVV
+    // [Example] -> I Have a [CreateActivityValidator] and it [Inherats] the [BaseActivityValidator] and in there i [Pass] the [CreateActivity.Command].
     x.AddOpenBehavior(typeof(ValidationBehavior<,>));
 });
 
@@ -38,7 +47,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateActivityValidator>();
 
 builder.Services.AddTransient<ExceptionMiddleware>();
 
-builder.Services.AddIdentityApiEndpoints<User>(opt => 
+builder.Services.AddIdentityApiEndpoints<User>(opt =>
 {
     opt.User.RequireUniqueEmail = true;
 })
@@ -53,7 +62,7 @@ app.UseMiddleware<ExceptionMiddleware>();
 
 // Important that it will be [Here] [Before] [app.UseAuthorization()]!!!
 app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod()
-.AllowCredentials() 
+.AllowCredentials()
 .WithOrigins("http://localhost:3000", "https://localhost:3000"));
 
 app.UseAuthentication(); // Must Be Before [app.UseAuthorization()] VVVVVV !!!!!!!!!!

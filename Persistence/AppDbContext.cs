@@ -6,6 +6,31 @@ namespace Persistence
 {
     public class AppDbContext(DbContextOptions options) : IdentityDbContext<User>(options)
     {
-        public DbSet<Activity> Activities { get; set; }
+        public required DbSet<Activity> Activities { get; set; }
+        public required DbSet<ActivityAttendee> ActivityAttendees { get; set; }
+
+
+        // This will [Provide] a [Configutation] to [Configure] our [Relationship] of are [Tables]
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            // This will make the [Primary Key] for the [ActivityAttendee] [Table]
+            builder.Entity<ActivityAttendee>(x => x.HasKey(a => new { a.ActivityId, a.UserId }));
+
+
+            // configuring the [relationship] [between] [ActivityAttendee] and [User].!!!!
+            builder.Entity<ActivityAttendee>()
+            .HasOne(x => x.User) // Each [ActivityAttendee] is related to [one] [User].
+            .WithMany(x => x.Activities) // Each User can have many ActivityAttendee
+            .HasForeignKey(x => x.UserId); // The link (foreign key) between them is the UserId field in ActivityAttendee
+
+
+            // configuring the [relationship] [between] [ActivityAttendee] and [Activity].!!!!
+            builder.Entity<ActivityAttendee>()
+                .HasOne(x => x.Activity) // Each [ActivityAttendee] is related to one [Activity]
+                .WithMany(x => x.Attendees) // Each [Activity] can have [many] [attendees]
+                .HasForeignKey(x => x.ActivityId); // The [foreign key] in [ActivityAttendee] that [links] to the [Activity] is [ActivityId].
+        }
     }
 }

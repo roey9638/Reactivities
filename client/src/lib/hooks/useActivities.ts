@@ -6,7 +6,7 @@ import { useAccount } from "./useAccount";
 export const useActivities = (id?: string) => {
 
     const queryClient = useQueryClient();
-    const {currentUser} = useAccount();
+    const { currentUser } = useAccount();
     const location = useLocation();
 
     // When we [Fetching] [Data] we [use] [useQuery]!!!
@@ -24,13 +24,22 @@ export const useActivities = (id?: string) => {
         // 1) We [Don't] have an [!id] [Passed] into the [useActivities()] [hook] in other [Components] that [use] that [hook].
         // 2) The [location] that the [user] is in is [location.pathname === '/activities'].
         // 3) If we [Don't have] the [currentUser] as in [!!currentUser]. Then Don't [Excute] this [useQuery].
-        enabled: !id && location.pathname === '/activities' && !!currentUser
+        enabled: !id && location.pathname === '/activities' && !!currentUser,
+        select: data => {
+            return data.map(activity => {
+                return {
+                    ...activity, // [copies] all existing [properties] from each [activity] object.
+                    isHost: currentUser?.id === activity.hostId, // checks if the [currentUser] is the [host] of the [activity].
+                    isGoing: activity.attendees.some(x => x.id === currentUser?.id) // checks if the [currentUser] is [listed] in the [activity's] [attendees].
+                }
+            })
+        }
     });
 
 
 
-    const {data: activity, isLoading: isLoadingActivity} = useQuery({
-        queryKey:['activities', id],
+    const { data: activity, isLoading: isLoadingActivity } = useQuery({
+        queryKey: ['activities', id],
         queryFn: async () => {
             const response = await agent.get<Activity>(`/activities/${id}`);
             return response.data;
@@ -39,7 +48,14 @@ export const useActivities = (id?: string) => {
         // 1) [Only] if we [Have] the [id].
         // 2) If we [Don't have] the [currentUser] as in [!!currentUser]. Then Don't [Excute] this [useQuery].
         // The [double (!!)] will [cast] the [id] into a [boolean].
-        enabled: !!id && !!currentUser
+        enabled: !!id && !!currentUser,
+        select: data => {
+            return {
+                ...data,
+                isHost: currentUser?.id === data.hostId,
+                isGoing: data.attendees.some(x => x.id === currentUser?.id)
+            }
+        }
     })
 
 
@@ -88,6 +104,70 @@ export const useActivities = (id?: string) => {
         }
     })
 
+    const updateAttendance = useMutation({
+        mutationFn: async (id: string) => {
+            await agent.post(`/activities/${id}/attend`)
+        },
+        onMutate: async (activityId: string) => {
+            await queryClient.cancelQueries({ queryKey: ['activities', activityId] });
+
+            /*  
+                It looks in the cache for data related to an activity with the given activityId. 
+                If it finds it, it returns that data and stores it in prevActivity. If not, prevActivity will be undefined 
+            */
+            const prevActivity = queryClient.getQueryData<Activity>(['activities', activityId]);
+
+            /* The [oldActivity] is the [current] [cached value], which is the [same] as [prevActivity]. BUT VVV */
+            /* 
+               Here I'm [Modifing] the [oldActivity]. And if everything is [Ok] then will [Return] it
+               If Not then will [Return] the [prevActivity]  
+            */
+            queryClient.setQueryData<Activity>(['activities', activityId], oldActivity => {
+                if (!oldActivity || !currentUser) {
+                    return oldActivity
+                }
+
+                const isHost = oldActivity.hostId === currentUser.id;
+                const isAttending = oldActivity.attendees.some(x => x.id === currentUser.id);
+
+                return {
+                    ...oldActivity,
+                    /*
+                        // If [isHost] is [true] → set [isCancelled] to the [opposite] of [oldActivity.isCancelled]
+                        // If [isHost] is [false] → set [isCancelled] to [oldActivity.isCancelled] (no change).
+                    */
+                    isCancelled: isHost ? !oldActivity.isCancelled : oldActivity.isCancelled,
+                    /* Here I'm checking if the [currentUser] is [isAttending]  */
+                    attendees: isAttending
+                        // Then I'm checking If the [currentUser] is the [host] VVV
+                        // If he is the [Host] then Just [keep] the [oldActivity.attendees] list the same. 
+                        ? isHost
+                            ? oldActivity.attendees
+                            /* Here I'm removing the [currentUser] if is [Not] the [Host]  */
+                            : oldActivity.attendees.filter(x => x.id !== currentUser.id)
+                        // Here if the [currentUser] is [not] [attending] Then VVV
+                        // [Add] the [currentUser] to the [list] of [attendees] VVV
+                        // (by copying the old list and adding their info to the end).
+                        : [...oldActivity.attendees, {
+                            id: currentUser.id,
+                            displayName: currentUser.displayName,
+                            imageUrl: currentUser.imageUrl
+                        }]
+                }
+            });
+
+            return { prevActivity };
+        },
+        onError: (error, activityId, context) => {
+            console.log('prevActivity' + context?.prevActivity);
+            console.log(error);
+            if (context?.prevActivity) {
+                // If theres an [Error] will just [set] the [prevActivity]
+                queryClient.setQueryData(['activities', activityId], context.prevActivity)
+            }
+        }
+    })
+
 
     return {
         activities,
@@ -96,6 +176,7 @@ export const useActivities = (id?: string) => {
         createActivity,
         deleteActivity,
         activity,
-        isLoadingActivity
+        isLoadingActivity,
+        updateAttendance
     }
 }

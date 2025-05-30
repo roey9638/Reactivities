@@ -26,6 +26,8 @@ namespace Application.Activities.Queries
                 // The [.ProjectTo<ActivityDto>(mapper.ConfigurationProvider)] VVV
                 // This directly convert [Activities] into [ActivityDto] objects in the database query.
                 var activity = await context.Activities
+                    /* The [ProjectTo<>] is [Baiscally] the [.Select()] [Query] 
+                        that [allows] us to [pick] [specific] [Properties] */
                     .ProjectTo<ActivityDto>(mapper.ConfigurationProvider)
                     .FirstOrDefaultAsync( x => request.Id == x.Id, cancellationToken);
 

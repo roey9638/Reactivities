@@ -23,6 +23,7 @@ namespace Application.Core
                 .ForMember(d => d.HostId, o => o.MapFrom(s =>
                     s.Attendees.FirstOrDefault(x => x.IsHost)!.User.Id));
 
+
             /* 
                 // I'm  [Mapping] from [ActivityAttendee] to [UserProfile] [Because] VVV
                 // When I'm [Mapping] from [Activity] to [ActivityDto] From [Above]^^^^. VVV
@@ -35,6 +36,9 @@ namespace Application.Core
             .ForMember(d => d.Bio, o => o.MapFrom(s => s.User.Bio)) // Copies the user's bio into UserProfile.Bio
             .ForMember(d => d.ImageUrl, o => o.MapFrom(s => s.User.ImageUrl)) // Copies the user's image URL into UserProfile.ImageUrl
             .ForMember(d => d.Id, o => o.MapFrom(s => s.User.Id)); // Copies the user's ID into UserProfile.Id
+
+
+            CreateMap<User, UserProfile>();
         }
     }
 

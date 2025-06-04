@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Application.Interfaces;
 using Domain;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 // This [Infrastructure] [Class] [has] a [dependency] on the [Application] [Project] VVV
@@ -28,6 +29,16 @@ public class UserAccessor(IHttpContextAccessor httpContextAccessor, AppDbContext
         // The [ClaimTypes.NameIdentifier] is a common claim used to store the user’s ID. */
         return httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier)
             ?? throw new Exception("No User Found");
+    }
+
+    public async Task<User> GetUserWithPhotosAsync()
+    {
+        var useId = GetUserId();
+
+        return await dbContext.Users
+            .Include(x => x.Photos)
+            .FirstOrDefaultAsync(x => x.Id == useId)
+                ?? throw new UnauthorizedAccessException("No User is Logged In");
     }
 }
 

@@ -8,6 +8,7 @@ namespace Persistence
     {
         public required DbSet<Activity> Activities { get; set; }
         public required DbSet<ActivityAttendee> ActivityAttendees { get; set; }
+        public required DbSet<Photo> Photos { get; set; }
 
 
         // This will [Provide] a [Configutation] to [Configure] our [Relationship] of are [Tables]

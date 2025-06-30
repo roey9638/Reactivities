@@ -22,7 +22,6 @@ export default function LoginForm() {
             onSuccess: () => {
                 // The [location.state?.from] is to [redirect] them back to where they came from.
                 // If They werent [loged in]
-                console.log(location.state?.from)
                 navigate(location.state?.from || '/activities');
             }
         });

@@ -27,10 +27,12 @@ export const useActivities = (id?: string) => {
         enabled: !id && location.pathname === '/activities' && !!currentUser,
         select: data => {
             return data.map(activity => {
+                const host = activity.attendees.find(x => x.id == activity.hostId);
                 return {
                     ...activity, // [copies] all existing [properties] from each [activity] object.
                     isHost: currentUser?.id === activity.hostId, // checks if the [currentUser] is the [host] of the [activity].
-                    isGoing: activity.attendees.some(x => x.id === currentUser?.id) // checks if the [currentUser] is [listed] in the [activity's] [attendees].
+                    isGoing: activity.attendees.some(x => x.id === currentUser?.id), // checks if the [currentUser] is [listed] in the [activity's] [attendees].
+                    hostImageUrl: host?.imageUrl
                 }
             })
         }
@@ -50,10 +52,12 @@ export const useActivities = (id?: string) => {
         // The [double (!!)] will [cast] the [id] into a [boolean].
         enabled: !!id && !!currentUser,
         select: data => {
+            const host = data.attendees.find(x => x.id == data.hostId);
             return {
                 ...data,
                 isHost: currentUser?.id === data.hostId,
-                isGoing: data.attendees.some(x => x.id === currentUser?.id)
+                isGoing: data.attendees.some(x => x.id === currentUser?.id),
+                hostImageUrl: host?.imageUrl
             }
         }
     })

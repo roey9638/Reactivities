@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { LoginSchema } from "../schemas/loginSchema"
 import agent from "../api/agent"
-import { useLocation, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { RegisterSchema } from "../schemas/registerSchema";
 import { toast } from "react-toastify";
 
@@ -9,7 +9,6 @@ export const useAccount = () => {
 
     const queryClient = useQueryClient();
     const navigate = useNavigate();
-    const location = useLocation();
 
 
     // After the [User] [Logs in] we want to [fetch] his [data]. So that's what the [onSuccess] doing.
@@ -62,10 +61,7 @@ export const useAccount = () => {
         },
         // Here i making sure that this [useQuery] is [executing] [ONLY] if 
         // 1) I don't have the [User] [data] [cached] already.
-        // 2) And I'm not in the ['/login'] [Route] or the ['/register'] [Route].
-        enabled: !queryClient.getQueryData(['user']) 
-            && location.pathname !== '/login'
-            && location.pathname !== '/register'
+        enabled: !queryClient.getQueryData(['user'])
     })
 
     return {

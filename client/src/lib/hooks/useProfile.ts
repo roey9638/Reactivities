@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import agent from "../api/agent"
 import { useMemo } from "react";
+import { EditProfileSchema } from "../schemas/editProfileSchema";
 
 export const useProfile = (id?: string) => {
 
@@ -111,6 +112,30 @@ export const useProfile = (id?: string) => {
     });
 
 
+    const updateProfile = useMutation({
+        mutationFn: async (profile: EditProfileSchema) => {
+            await agent.put(`/profiles`, profile);
+        },
+        onSuccess: (_, profile) => {
+            queryClient.setQueryData(['profile', id], (data: Profile) => {
+                if (!data) return data;
+                return {
+                    ...data,
+                    displayName: profile.displayName,
+                    bio: profile.bio
+                }
+            });
+            queryClient.setQueryData(['user'], (userData: User) => {
+                if (!userData) return userData;
+                return {
+                    ...userData,
+                    displayName: profile.displayName
+                }
+            });
+        }
+    })
+
+
     // This [useMemo] will only [recompute] the [memorized] [value] when [one] of the [dependencies] has [changed].
     const isCurrentUser = useMemo(() => {
         // This ['user'] will come from the [useAccount] [Hook] in the [Query] that has that [queryKey] with that [Name] => ['user']. VVV
@@ -127,6 +152,7 @@ export const useProfile = (id?: string) => {
         isCurrentUser,
         uploadPhoto,
         setMainPhoto,
-        deletePhoto
+        deletePhoto,
+        updateProfile
     }
 }

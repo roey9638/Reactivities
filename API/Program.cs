@@ -1,4 +1,5 @@
 using API.Middleware;
+using API.SignalR;
 using Application.Activities.Queries;
 using Application.Core;
 using Application.Interfaces;
@@ -28,6 +29,8 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 });
 
 builder.Services.AddCors();
+
+builder.Services.AddSignalR();
 
 builder.Services.AddMediatR(x =>
 {
@@ -99,6 +102,10 @@ app.MapControllers();
 // This Making sure that when we [Route] somewhere with the [identity] 
 // It will be like the others. For Example ---> "api/login".
 app.MapGroup("api").MapIdentityApi<User>();
+
+// That's for when a [client] [browser]. The way he [connects] to this will be like VVV
+// "localhost:5001/comments"
+app.MapHub<CommentHub>("/comments");
 
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;

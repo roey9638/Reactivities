@@ -1,6 +1,7 @@
 using Domain;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Persistence
 {
@@ -9,6 +10,7 @@ namespace Persistence
         public required DbSet<Activity> Activities { get; set; }
         public required DbSet<ActivityAttendee> ActivityAttendees { get; set; }
         public required DbSet<Photo> Photos { get; set; }
+        public required DbSet<Comment> Comments { get; set; }
 
 
         // This will [Provide] a [Configutation] to [Configure] our [Relationship] of are [Tables]
@@ -40,6 +42,24 @@ namespace Persistence
                 .HasOne(x => x.Activity) // Each [ActivityAttendee] is related to one [Activity]
                 .WithMany(x => x.Attendees) // Each [Activity] can have [many] [attendees]
                 .HasForeignKey(x => x.ActivityId); // The [foreign key] in [ActivityAttendee] that [links] to the [Activity] is [ActivityId].
+
+
+            var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
+                v => v.ToUniversalTime(),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+            );
+
+
+            foreach (var entityType in builder.Model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    if (property.ClrType == typeof(DateTime))
+                    {
+                        property.SetValueConverter(dateTimeConverter);
+                    }
+                }
+            }
         }
     }
 }

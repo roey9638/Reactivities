@@ -11,6 +11,7 @@ namespace Persistence
         public required DbSet<ActivityAttendee> ActivityAttendees { get; set; }
         public required DbSet<Photo> Photos { get; set; }
         public required DbSet<Comment> Comments { get; set; }
+        public required DbSet<UserFollowing> UserFollowings { get; set; }
 
 
         // This will [Provide] a [Configutation] to [Configure] our [Relationship] of are [Tables]
@@ -42,6 +43,24 @@ namespace Persistence
                 .HasOne(x => x.Activity) // Each [ActivityAttendee] is related to one [Activity]
                 .WithMany(x => x.Attendees) // Each [Activity] can have [many] [attendees]
                 .HasForeignKey(x => x.ActivityId); // The [foreign key] in [ActivityAttendee] that [links] to the [Activity] is [ActivityId].
+
+
+            builder.Entity<UserFollowing>(x =>
+            {
+                x.HasKey(k => new { k.ObserverId, k.TargetId });
+
+                x.HasOne(o => o.Observer) // The [Follower] [User]
+                    .WithMany(f => f.Followings)
+                    .HasForeignKey(o => o.ObserverId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+
+                x.HasOne(o => o.Target) // The [Followed] [User]
+                    .WithMany(f => f.Followers)
+                    .HasForeignKey(o => o.TargetId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
 
 
             var dateTimeConverter = new ValueConverter<DateTime, DateTime>(

@@ -1,45 +1,67 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import agent from "../api/agent";
 import { useLocation } from "react-router";
 import { useAccount } from "./useAccount";
+import useStore from "./useStore";
 
 export const useActivities = (id?: string) => {
-
+    const { activityStore: {filter, startDate}} = useStore();
     const queryClient = useQueryClient();
     const { currentUser } = useAccount();
     const location = useLocation();
 
-    // When we [Fetching] [Data] we [use] [useQuery]!!!
-    const { data: activities, isLoading } = useQuery({
+    // The [useInfiniteQuery] is good for when we [using] [Pagination]
+    const { data: activitiesGroup, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteQuery<PagedList<Activity, string>>({
         // The [queryKey] is used internally for refetching, caching, VVVV
         // And sharing your queries throughout your application.
         // Also Its job is to give the incoming data from the backend  VVVV
         // a suitable name to store the incoming data in the cache.
-        queryKey: ['activities'],
-        queryFn: async () => {
-            const response = await agent.get<Activity[]>('/activities');
+        queryKey: ['activities', filter, startDate],
+        // The [pageParam ,initialPageParam ,getNextPageParam] comes from [useInfiniteQuery].
+        queryFn: async ({ pageParam = null }) => {
+            const response = await agent.get<PagedList<Activity, string>>('/activities',
+                {
+                    params: {
+                        cursor: pageParam,
+                        pageSize: 3,
+                        filter,
+                        startDate
+                    }
+                }
+            );
             return response.data;
         },
+        staleTime: 1000 * 60 * 5,
+        placeholderData: keepPreviousData,
+        initialPageParam: null,
+        /* The [lastPage] is the [data] [returned] from the [previous page]. VVV
+        // The [Data] [includes] a [property] called [nextCursor] */
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
         // The [enabled] allows this [useQuery] to [Execute] [Only if] VVVV
         // 1) We [Don't] have an [!id] [Passed] into the [useActivities()] [hook] in other [Components] that [use] that [hook].
         // 2) The [location] that the [user] is in is [location.pathname === '/activities'].
         // 3) If we [Don't have] the [currentUser] as in [!!currentUser]. Then Don't [Excute] this [useQuery].
         enabled: !id && location.pathname === '/activities' && !!currentUser,
-        select: data => {
-            return data.map(activity => {
-                const host = activity.attendees.find(x => x.id == activity.hostId);
-                return {
-                    ...activity, // [copies] all existing [properties] from each [activity] object.
-                    isHost: currentUser?.id === activity.hostId, // checks if the [currentUser] is the [host] of the [activity].
-                    isGoing: activity.attendees.some(x => x.id === currentUser?.id), // checks if the [currentUser] is [listed] in the [activity's] [attendees].
-                    hostImageUrl: host?.imageUrl
-                }
-            })
-        }
+        select: data => ({
+            ...data,
+            pages: data.pages.map((page) => ({
+                ...page,
+                items: page.items.map(activity => {
+                    const host = activity.attendees.find(x => x.id == activity.hostId);
+                    return {
+                        ...activity, // [copies] all existing [properties] from each [activity] object.
+                        isHost: currentUser?.id === activity.hostId, // checks if the [currentUser] is the [host] of the [activity].
+                        isGoing: activity.attendees.some(x => x.id === currentUser?.id), // checks if the [currentUser] is [listed] in the [activity's] [attendees].
+                        hostImageUrl: host?.imageUrl
+                    }
+                })
+            }))
+        })
+
     });
 
 
-
+    // When we [Fetching] [Data] we [use] [useQuery]!!!
     const { data: activity, isLoading: isLoadingActivity } = useQuery({
         queryKey: ['activities', id],
         queryFn: async () => {
@@ -174,7 +196,10 @@ export const useActivities = (id?: string) => {
 
 
     return {
-        activities,
+        activitiesGroup,
+        isFetchingNextPage,
+        fetchNextPage,
+        hasNextPage,
         isLoading,
         updateActivity,
         createActivity,

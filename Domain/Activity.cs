@@ -2,9 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Domain
 {
+    // We using [query] in the [GetActivityList] [Class]. [Date] is a [type of] [DateTime]
+    // So this [Index(nameof(Date))] is for when we [Pass] a [DateTime] iw will Jump [straight] to the [DateTime] we [gave it].
+    [Index(nameof(Date))]
     public class Activity
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();

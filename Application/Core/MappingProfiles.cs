@@ -40,7 +40,7 @@ namespace Application.Core
             .ForMember(d => d.Id, o => o.MapFrom(s => s.User.Id)) // Copies the user's ID into UserProfile.Id
             .ForMember(d => d.FollowersCount, o => o.MapFrom(s => s.User.Followers.Count))
             .ForMember(d => d.FollowingCount, o => o.MapFrom(s => s.User.Followings.Count))
-            .ForMember(d => d.Following, o => o.MapFrom(s => 
+            .ForMember(d => d.Following, o => o.MapFrom(s =>
                 s.User.Followers.Any(x => x.Observer.Id == currentUserId)));
 
 
@@ -55,6 +55,9 @@ namespace Application.Core
             .ForMember(d => d.DisplayName, o => o.MapFrom(s => s.User.DisplayName))
             .ForMember(d => d.UserId, o => o.MapFrom(s => s.User.Id))
             .ForMember(d => d.ImageUrl, o => o.MapFrom(s => s.User.ImageUrl));
+
+
+            CreateMap<Activity, UserActivityDto>();
         }
     }
 }
